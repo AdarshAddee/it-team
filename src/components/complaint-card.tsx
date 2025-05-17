@@ -24,7 +24,7 @@ const formatDisplayValue = (
   }
 
   switch (fieldType) {
-    case 'name': // Title Case
+    case 'name': // Title Case for name
       return value
         .toLowerCase()
         .split(' ')
@@ -32,12 +32,12 @@ const formatDisplayValue = (
         .join(' ');
     case 'department':
     case 'block':
-    case 'room-no': // UPPERCASE
+    case 'room-no': // UPPERCASE for these fields
       return value.toUpperCase();
-    case 'issue': // Capitalize first letter, preserve rest of the casing
+    case 'issue': // Capitalize first letter for issue, preserve rest
       return value.charAt(0).toUpperCase() + value.slice(1);
     default:
-      return value; // Should not happen with defined fieldTypes
+      return value;
   }
 };
 
@@ -98,7 +98,7 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
               <p className="text-xs uppercase tracking-wider font-medium text-muted-foreground">
                 Name
               </p>
-              <p className="text-md font-semibold text-foreground break-words">
+              <p className="text-md font-normal text-foreground break-words">
                 {formatDisplayValue(complaint.name, 'name')}
               </p>
             </div>
@@ -111,7 +111,7 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
               <p className="text-xs uppercase tracking-wider font-medium text-muted-foreground">
                 Department
               </p>
-              <p className="text-md font-semibold text-foreground break-words">
+              <p className="text-md font-normal text-foreground break-words">
                 {formatDisplayValue(complaint.dept, 'department')}
               </p>
             </div>
@@ -124,7 +124,7 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
               <p className="text-xs uppercase tracking-wider font-medium text-muted-foreground">
                 Block
               </p>
-              <p className="text-md font-semibold text-foreground break-words">
+              <p className="text-md font-normal text-foreground break-words">
                 {formatDisplayValue(complaint.block, 'block')}
               </p>
             </div>
@@ -137,7 +137,7 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
               <p className="text-xs uppercase tracking-wider font-medium text-muted-foreground">
                 Room No.
               </p>
-              <p className="text-md font-semibold text-foreground break-words">
+              <p className="text-md font-normal text-foreground break-words">
                 {formatDisplayValue(complaint['room-no'], 'room-no')}
               </p>
             </div>
@@ -152,7 +152,7 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
             Issue Reported
           </h3>
           <div className="bg-muted/20 p-4 rounded-md shadow-inner border border-border/20">
-            <p className="text-md text-foreground/90 leading-relaxed">
+            <p className="text-md text-foreground/90 leading-relaxed font-normal">
               {formatDisplayValue(complaint.complaints, 'issue')}
             </p>
           </div>
