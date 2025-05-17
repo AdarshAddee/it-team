@@ -5,32 +5,54 @@ import type { Complaint } from '@/app/page';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from '@/lib/utils';
-import { User, Building, Hash, Home, MessageSquareWarning, CalendarDays } from 'lucide-react'; // Added CalendarDays
+import { User, Building, Hash, Home, MessageSquareWarning, CalendarDays } from 'lucide-react';
 
 interface ComplaintCardProps {
   complaint: Complaint;
   index: number;
 }
 
-export default function ComplaintCard({ complaint, index }: ComplaintCardProps) {
-  const dataFields = [
-    { label: "Name", value: complaint.name, icon: <User className="w-4 h-4 text-primary" /> },
-    { label: "Department", value: complaint.dept, icon: <Building className="w-4 h-4 text-primary" /> },
-    { label: "Block", value: complaint.block, icon: <Hash className="w-4 h-4 text-primary" /> },
-    { label: "Room No.", value: complaint['room-no'], icon: <Home className="w-4 h-4 text-primary" /> },
-  ];
+// Helper function to format display values
+const formatDisplayValue = (
+  originalValue: string | number | undefined | null,
+  fieldType: 'name' | 'department' | 'block' | 'room-no' | 'issue'
+): string => {
+  const value = String(originalValue || '').trim();
 
+  if (value === '') {
+    return fieldType === 'issue' ? 'No issue description provided.' : 'N/A';
+  }
+
+  switch (fieldType) {
+    case 'name': // Title Case
+      return value
+        .toLowerCase()
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    case 'department':
+    case 'block':
+    case 'room-no': // UPPERCASE
+      return value.toUpperCase();
+    case 'issue': // Capitalize first letter, preserve rest of the casing
+      return value.charAt(0).toUpperCase() + value.slice(1);
+    default:
+      return value; // Should not happen with defined fieldTypes
+  }
+};
+
+
+export default function ComplaintCard({ complaint, index }: ComplaintCardProps) {
   // Attempt to format date, if it's a valid date string or timestamp
   let displayDate = complaint.date;
   if (complaint.date && !isNaN(new Date(complaint.date).getTime())) {
-     // Check if it's just a year (e.g., "2024") - might not be a full date
     if (complaint.date.length === 4 && /^\d{4}$/.test(complaint.date)) {
-        displayDate = complaint.date; // Keep as is if just a year
+        displayDate = complaint.date; 
     } else {
         try {
             const dateObj = new Date(complaint.date);
-            if (!isNaN(dateObj.valueOf())) { // Check if date is valid after parsing
-                 displayDate = dateObj.toLocaleDateString('en-GB', { // Example: 23/07/2024
+            if (!isNaN(dateObj.valueOf())) { 
+                 displayDate = dateObj.toLocaleDateString('en-GB', {
                     day: '2-digit',
                     month: '2-digit',
                     year: 'numeric'
@@ -40,10 +62,9 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
             // Keep original if parsing fails
         }
     }
-  } else if (complaint.date === 'N/A') {
+  } else if (complaint.date === 'N/A' || !complaint.date) {
     displayDate = 'N/A';
   }
-
 
   return (
     <Card
@@ -58,7 +79,7 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
           <MessageSquareWarning className="w-7 h-7 mr-3 text-accent" />
           Complaint Details
         </CardTitle>
-        <div className="ml-[calc(28px+0.75rem)]"> {/* Align with title text, considering icon and margin */}
+        <div className="ml-[calc(28px+0.75rem)]">
           <CardDescription className="text-xs text-muted-foreground pt-1">
             Report ID: {complaint.id}
           </CardDescription>
@@ -70,19 +91,57 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
       </CardHeader>
       <CardContent className="p-6 space-y-5">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-          {dataFields.map((field) => (
-            <div key={field.label} className="space-y-1 flex items-start">
-              {field.icon && <div className="mr-2.5 mt-0.5 shrink-0">{field.icon}</div>}
-              <div>
-                <p className="text-xs uppercase tracking-wider font-medium text-muted-foreground">
-                  {field.label}
-                </p>
-                <p className="text-md font-semibold text-foreground break-words">
-                  {String(field.value || 'N/A')}
-                </p>
-              </div>
+          {/* Name */}
+          <div className="space-y-1 flex items-start">
+            <User className="w-4 h-4 text-primary mr-2.5 mt-0.5 shrink-0" />
+            <div>
+              <p className="text-xs uppercase tracking-wider font-medium text-muted-foreground">
+                Name
+              </p>
+              <p className="text-md font-semibold text-foreground break-words">
+                {formatDisplayValue(complaint.name, 'name')}
+              </p>
             </div>
-          ))}
+          </div>
+
+          {/* Department */}
+          <div className="space-y-1 flex items-start">
+            <Building className="w-4 h-4 text-primary mr-2.5 mt-0.5 shrink-0" />
+            <div>
+              <p className="text-xs uppercase tracking-wider font-medium text-muted-foreground">
+                Department
+              </p>
+              <p className="text-md font-semibold text-foreground break-words">
+                {formatDisplayValue(complaint.dept, 'department')}
+              </p>
+            </div>
+          </div>
+
+          {/* Block */}
+          <div className="space-y-1 flex items-start">
+            <Hash className="w-4 h-4 text-primary mr-2.5 mt-0.5 shrink-0" />
+            <div>
+              <p className="text-xs uppercase tracking-wider font-medium text-muted-foreground">
+                Block
+              </p>
+              <p className="text-md font-semibold text-foreground break-words">
+                {formatDisplayValue(complaint.block, 'block')}
+              </p>
+            </div>
+          </div>
+          
+          {/* Room No. */}
+          <div className="space-y-1 flex items-start">
+            <Home className="w-4 h-4 text-primary mr-2.5 mt-0.5 shrink-0" />
+            <div>
+              <p className="text-xs uppercase tracking-wider font-medium text-muted-foreground">
+                Room No.
+              </p>
+              <p className="text-md font-semibold text-foreground break-words">
+                {formatDisplayValue(complaint['room-no'], 'room-no')}
+              </p>
+            </div>
+          </div>
         </div>
         
         <Separator className="my-4 bg-border/50" />
@@ -94,7 +153,7 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
           </h3>
           <div className="bg-muted/20 p-4 rounded-md shadow-inner border border-border/20">
             <p className="text-md text-foreground/90 leading-relaxed">
-              {complaint.complaints || 'No issue description provided.'}
+              {formatDisplayValue(complaint.complaints, 'issue')}
             </p>
           </div>
         </div>
@@ -102,4 +161,3 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
     </Card>
   );
 }
-
