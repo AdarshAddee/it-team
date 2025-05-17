@@ -13,9 +13,9 @@ import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, User, Building, Hash, Home, MessageSquareWarning, Edit, AlertCircle, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-// Extend BaseComplaint for this page if needed, or use it directly
-export interface Complaint extends BaseComplaint {
-  // date_resolved is already in BaseComplaint if updated there
+// Extend BaseComplaint for this page, ensuring 'date-solved' is included
+export interface Complaint extends Omit<BaseComplaint, 'date-solved' | 'date_resolved'> { // Omit old field if it existed with a typo
+  'date-solved'?: string; // Use the correct hyphenated field name
 }
 
 async function getComplaintDetails(id: string): Promise<Complaint | null> {
@@ -34,7 +34,7 @@ async function getComplaintDetails(id: string): Promise<Complaint | null> {
         date: data.date || 'N/A',
         status: data.status ? String(data.status).toLowerCase() : 'pending',
         comment: data.comment || '',
-        date_resolved: data.date_resolved || '', // Fetch date_resolved
+        'date-solved': data['date-solved'] || '', // Fetch date-solved
       };
     } else {
       console.log(`No complaint found with ID: ${id}`);
@@ -59,30 +59,32 @@ export async function updateComplaintAction(prevState: any, formData: FormData) 
   // Convert to lowercase before saving
   status = status.toLowerCase();
   if (comment !== null && comment !== undefined) {
-    comment = comment.trim() === '' ? '' : comment.toLowerCase(); // store empty string if only spaces, else lowercase
+    comment = comment.trim() === '' ? '' : comment.toLowerCase(); 
   } else {
-    comment = ''; // ensure comment is at least an empty string if null/undefined initially
+    comment = ''; 
   }
 
-
   const complaintRef = ref(database, `gna-complaints/${complaintId}`);
-  const updates: Partial<Complaint> & { [key: string]: any } = { status }; // Use any for dynamic keys like date_resolved
+  // Use a more specific type for updates, allowing string keys for Firebase
+  const updates: { [key: string]: any } = { status };
 
-  if (comment) { // only add comment to updates if it has content
+
+  if (comment) { 
     updates.comment = comment;
   } else {
-    // If comment is empty, we might want to remove it or set it to empty string
-    // For RTDB, setting to null removes the field. Setting to empty string stores an empty string.
-    // Let's store an empty string to signify an explicitly emptied comment.
     updates.comment = '';
   }
 
   if (status === 'completed') {
-    updates.date_resolved = new Date().toISOString();
+    updates['date-solved'] = new Date().toISOString();
+  } else {
+    // If status is not 'completed', ensure 'date-solved' is cleared or set to empty
+    // Setting to null would remove the field in RTDB. For consistency, let's use an empty string if it previously existed.
+    // Or, to explicitly remove, one might fetch the current data and delete the key if not 'completed'.
+    // For simplicity here, if it's not completed, we ensure it's an empty string.
+    // If you want to remove the field, you'd set `updates['date-solved'] = null;`
+    updates['date-solved'] = ''; 
   }
-  // If status changes from 'completed' to 'pending', date_resolved is not automatically cleared here.
-  // This can be added if required:
-  // else { updates.date_resolved = null; } // This would remove the field if status is not 'completed'
 
   try {
     await update(complaintRef, updates);
@@ -234,17 +236,17 @@ export default async function ComplaintUpdatePage({ params }: { params: { id: st
             <Separator />
             <div>
               <h3 className="text-md font-semibold text-accent mb-1.5 flex items-center">
-                 <FileText className="w-4 h-4 mr-2 text-accent shrink-0" /> {/* Changed icon */}
+                 <FileText className="w-4 h-4 mr-2 text-accent shrink-0" />
                 Issue Reported
               </h3>
               <p className="text-sm text-foreground/90 bg-muted/20 p-3 rounded-md border border-border/20">
                 {formatDisplayValue(complaint.complaints, 'issue')}
               </p>
             </div>
-             {complaint.comment && complaint.comment.trim() !== '' && ( // Check if comment exists and is not just whitespace
+             {complaint.comment && complaint.comment.trim() !== '' && ( 
                 <div>
                     <h3 className="text-md font-semibold text-accent mb-1.5 flex items-center">
-                        <FileText className="w-4 h-4 mr-2 text-accent shrink-0" /> {/* Changed icon */}
+                        <FileText className="w-4 h-4 mr-2 text-accent shrink-0" />
                         Previous Comment
                     </h3>
                     <p className="text-sm text-foreground/90 bg-muted/20 p-3 rounded-md border border-border/20">

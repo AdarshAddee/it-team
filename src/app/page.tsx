@@ -16,7 +16,7 @@ export interface Complaint {
   date: string;
   status?: string; 
   comment?: string; 
-  date_resolved?: string; // New field for resolution date
+  'date-solved'?: string; // Changed from date_resolved
 }
 
 async function getComplaints(): Promise<Complaint[]> {
@@ -37,7 +37,7 @@ async function getComplaints(): Promise<Complaint[]> {
         date: data[key].date || 'N/A',
         status: data[key].status ? String(data[key].status).toLowerCase() : 'pending', // Ensure lowercase, default to pending
         comment: data[key].comment || '', 
-        date_resolved: data[key].date_resolved || '', // Fetch date_resolved
+        'date-solved': data[key]['date-solved'] || '', // Changed from date_resolved
       }));
       return complaintsArray.reverse(); 
     } else {
