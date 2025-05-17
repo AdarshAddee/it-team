@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, User, Building, Hash, Home, MessageSquareWarning, CalendarDays, Send, AlertCircle } from 'lucide-react';
+import { ArrowLeft, User, Building, Hash, Home, MessageSquareWarning, CalendarDays, Send, AlertCircle, Edit } from 'lucide-react';
 
 async function getComplaintDetails(id: string): Promise<Complaint | null> {
   const complaintRef = ref(database, `gna-complaints/${id}`);
@@ -54,14 +54,14 @@ async function updateComplaintAction(formData: FormData) {
 
   const complaintRef = ref(database, `gna-complaints/${complaintId}`);
   const updates: Partial<Complaint> = { status };
-  if (comment !== null && comment !== undefined) { // Only update comment if provided
+  if (comment !== null && comment !== undefined) { 
     updates.comment = comment;
   }
 
   try {
     await update(complaintRef, updates);
-    revalidatePath('/complaint/[id]', 'page'); // Revalidate this specific complaint page
-    revalidatePath('/', 'page'); // Revalidate the home page to update card status
+    revalidatePath('/complaint/[id]', 'page'); 
+    revalidatePath('/', 'page'); 
     return { success: true, message: 'Complaint updated successfully!' };
   } catch (error) {
     console.error('Error updating complaint:', error);
@@ -69,7 +69,6 @@ async function updateComplaintAction(formData: FormData) {
   }
 }
 
-// Helper to format display values (copied from complaint-card for consistency, can be moved to utils)
 const formatDisplayValue = (
   originalValue: string | number | undefined | null,
   fieldType: 'name' | 'department' | 'block' | 'room-no' | 'issue' | 'comment'
@@ -134,12 +133,6 @@ export default async function ComplaintUpdatePage({ params }: { params: { id: st
     displayDate = 'N/A';
   }
 
-
-  // Component to handle form submission and state for messages
-  // This part needs to be a client component if we want instant feedback without full page reload
-  // For now, Server Action will cause a page reload/revalidation
-  // To show message from server action, we'd need a client component wrapper or pass it via searchParams
-
   return (
     <main className="min-h-screen w-full flex flex-col items-center p-4 sm:p-6 md:p-8 bg-background selection:bg-primary/20">
       <div className="w-full max-w-2xl">
@@ -149,10 +142,54 @@ export default async function ComplaintUpdatePage({ params }: { params: { id: st
               <ArrowLeft className="mr-2 h-4 w-4" /> Back to All Complaints
             </Link>
           </Button>
-          <h1 className="text-3xl font-bold text-primary">Update Complaint Status</h1>
-          <p className="text-muted-foreground">Manage the status and add comments for Report ID: {complaint.id}</p>
+          <h1 className="text-3xl font-bold text-primary">Manage Complaint</h1>
+          <p className="text-muted-foreground">Update status and add comments for Report ID: {complaint.id}</p>
         </div>
 
+        <Card className="mb-8 shadow-lg border border-border/30 rounded-lg">
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold text-primary flex items-center">
+              <Edit className="w-6 h-6 mr-2.5 text-accent" />
+              Update Status & Add Comment
+            </CardTitle>
+          </CardHeader>
+          <form action={updateComplaintAction}>
+            <CardContent className="space-y-6">
+              <input type="hidden" name="complaintId" value={complaint.id} />
+              
+              <div className="space-y-2">
+                <Label htmlFor="comment" className="font-medium">Comment (Optional)</Label>
+                <Textarea
+                  id="comment"
+                  name="comment"
+                  placeholder="Add any relevant comments or notes here..."
+                  rows={4}
+                  defaultValue={complaint.comment || ''}
+                  className="text-sm"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="status" className="font-medium">Status</Label>
+                <Select name="status" defaultValue={complaint.status || 'Pending'} required>
+                  <SelectTrigger id="status" className="w-full text-sm">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Pending">Pending</SelectItem>
+                    <SelectItem value="Completed">Completed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button type="submit" className="w-full sm:w-auto">
+                <Send className="mr-2 h-4 w-4" /> Submit Update
+              </Button>
+            </CardFooter>
+          </form>
+        </Card>
+        
         <Card className="mb-8 shadow-lg border border-border/30 rounded-lg">
           <CardHeader>
             <CardTitle className="text-xl font-semibold text-primary flex items-center">
@@ -212,53 +249,9 @@ export default async function ComplaintUpdatePage({ params }: { params: { id: st
           </CardContent>
         </Card>
 
-        <Card className="shadow-lg border border-border/30 rounded-lg">
-          <CardHeader>
-            <CardTitle className="text-xl font-semibold text-primary">Update Status & Add Comment</CardTitle>
-          </CardHeader>
-          <form action={updateComplaintAction}>
-            <CardContent className="space-y-6">
-              <input type="hidden" name="complaintId" value={complaint.id} />
-              
-              <div className="space-y-2">
-                <Label htmlFor="comment" className="font-medium">Comment (Optional)</Label>
-                <Textarea
-                  id="comment"
-                  name="comment"
-                  placeholder="Add any relevant comments or notes here..."
-                  rows={4}
-                  defaultValue={complaint.comment || ''}
-                  className="text-sm"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="status" className="font-medium">Status</Label>
-                <Select name="status" defaultValue={complaint.status || 'Pending'} required>
-                  <SelectTrigger id="status" className="w-full text-sm">
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Pending">Pending</SelectItem>
-                    <SelectItem value="Completed">Completed</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button type="submit" className="w-full sm:w-auto">
-                <Send className="mr-2 h-4 w-4" /> Submit Update
-              </Button>
-            </CardFooter>
-          </form>
-        </Card>
       </div>
     </main>
   );
 }
 
-// Note: For instant feedback messages (like "Update successful!") without a full page reload after form submission,
-// the form handling part would ideally be in a client component using `useFormState` and `useFormStatus` from 'react-dom'.
-// The current server action will revalidate the page, reflecting changes after submission.
-// To show the message from `updateComplaintAction`, one common pattern is to redirect with a query parameter
-// (e.g., /complaint/[id]?message=success) and then display it. Or use a client component with useFormState.
+    
