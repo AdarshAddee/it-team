@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
-import { Lora, Playfair_Display } from 'next/font/google';
+import { Lora, Playfair_Display, Montserrat } from 'next/font/google';
 import './globals.css';
 import { cn } from '@/lib/utils';
+import DeviceGate from '@/components/device-gate'; // Import DeviceGate
 
 const lora = Lora({
   subsets: ['latin'],
@@ -14,6 +15,13 @@ const playfairDisplay = Playfair_Display({
   subsets: ['latin'],
   variable: '--font-playfair-display',
   weight: ['400', '500', '600', '700', '800', '900'],
+  display: 'swap',
+});
+
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  variable: '--font-montserrat',
+  weight: ['300', '400', '500', '600', '700'],
   display: 'swap',
 });
 
@@ -31,12 +39,13 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
-          'min-h-screen bg-background font-lora antialiased',
+          'min-h-screen bg-background font-montserrat antialiased', // Changed primary font to montserrat
           lora.variable,
-          playfairDisplay.variable
+          playfairDisplay.variable,
+          montserrat.variable // Added montserrat variable
         )}
       >
-        {children}
+        <DeviceGate>{children}</DeviceGate> {/* Wrap children with DeviceGate */}
       </body>
     </html>
   );

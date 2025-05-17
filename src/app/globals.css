@@ -36,7 +36,7 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --radius: 0.8rem; /* Slightly larger radius for a softer, luxurious feel */
+    --radius: 0.5rem; /* Reduced radius for a sleeker, mobile-friendly feel */
 
     --sidebar-background: 208 90% 95%; /* Light lavender variant for sidebar */
     --sidebar-foreground: 270 50% 30%; /* Dark purple for sidebar text */
@@ -81,6 +81,7 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    --radius: 0.5rem; /* Reduced radius for a sleeker, mobile-friendly feel */
 
     --sidebar-background: 276 35% 15%; /* Darker purple for sidebar */
     --sidebar-foreground: 208 90% 85%; /* Lighter lavender for sidebar text */
