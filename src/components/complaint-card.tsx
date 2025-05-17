@@ -5,6 +5,7 @@ import type { Complaint } from '@/app/page';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { cn } from '@/lib/utils';
+import { User, Building, Hash, Home, MessageSquareWarning, CalendarDays } from 'lucide-react'; // Added CalendarDays
 
 interface ComplaintCardProps {
   complaint: Complaint;
@@ -13,11 +14,36 @@ interface ComplaintCardProps {
 
 export default function ComplaintCard({ complaint, index }: ComplaintCardProps) {
   const dataFields = [
-    { label: "Name", value: complaint.name },
-    { label: "Department", value: complaint.dept }, // Updated to use 'dept'
-    { label: "Block", value: complaint.block },
-    { label: "Room No.", value: complaint['room-no'] },
+    { label: "Name", value: complaint.name, icon: <User className="w-4 h-4 text-primary" /> },
+    { label: "Department", value: complaint.dept, icon: <Building className="w-4 h-4 text-primary" /> },
+    { label: "Block", value: complaint.block, icon: <Hash className="w-4 h-4 text-primary" /> },
+    { label: "Room No.", value: complaint['room-no'], icon: <Home className="w-4 h-4 text-primary" /> },
   ];
+
+  // Attempt to format date, if it's a valid date string or timestamp
+  let displayDate = complaint.date;
+  if (complaint.date && !isNaN(new Date(complaint.date).getTime())) {
+     // Check if it's just a year (e.g., "2024") - might not be a full date
+    if (complaint.date.length === 4 && /^\d{4}$/.test(complaint.date)) {
+        displayDate = complaint.date; // Keep as is if just a year
+    } else {
+        try {
+            const dateObj = new Date(complaint.date);
+            if (!isNaN(dateObj.valueOf())) { // Check if date is valid after parsing
+                 displayDate = dateObj.toLocaleDateString('en-GB', { // Example: 23/07/2024
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            }
+        } catch (e) {
+            // Keep original if parsing fails
+        }
+    }
+  } else if (complaint.date === 'N/A') {
+    displayDate = 'N/A';
+  }
+
 
   return (
     <Card
@@ -27,41 +53,53 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
       )}
       style={{ animationDelay: `${index * 150 + 200}ms` }}
     >
-      <CardHeader className="p-6 bg-gradient-to-br from-card to-muted/20 border-b border-border/30">
-        <CardTitle className="font-playfair-display text-2xl text-primary">
+      <CardHeader className="p-6 bg-gradient-to-br from-card to-muted/10 border-b border-border/30">
+        <CardTitle className="text-2xl font-bold text-primary flex items-center">
+          <MessageSquareWarning className="w-7 h-7 mr-3 text-accent" />
           Complaint Details
         </CardTitle>
-        <CardDescription className="font-montserrat text-xs text-muted-foreground pt-1">
-          Report ID: {complaint.id}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="p-6 space-y-6">
-        <div>
-          <h3 className="font-playfair-display text-xl font-semibold text-accent mb-2 tracking-tight">
-            Issue Reported
-          </h3>
-          <div className="bg-muted/30 p-4 rounded-md shadow-inner border border-border/20">
-            <p className="text-md text-foreground/90 font-montserrat leading-relaxed italic">
-              {complaint.complaints || 'No issue description provided.'} {/* Updated to use 'complaints' */}
-            </p>
-          </div>
+        <div className="ml-[calc(28px+0.75rem)]"> {/* Align with title text, considering icon and margin */}
+          <CardDescription className="text-xs text-muted-foreground pt-1">
+            Report ID: {complaint.id}
+          </CardDescription>
+          <p className="text-xs text-muted-foreground pt-0.5 flex items-center">
+            <CalendarDays className="w-3 h-3 mr-1.5 text-muted-foreground/80" /> 
+            Date: {displayDate}
+          </p>
         </div>
-        
-        <Separator className="my-6 bg-border/50" />
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
-          {dataFields.map((field, idx) => (
-            <div key={field.label} className="space-y-1">
-              <p className="text-xs uppercase tracking-wider font-medium text-muted-foreground font-montserrat">
-                {field.label}
-              </p>
-              <p className="text-lg font-semibold text-foreground font-montserrat break-words">
-                {String(field.value || 'N/A')}
-              </p>
+      </CardHeader>
+      <CardContent className="p-6 space-y-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+          {dataFields.map((field) => (
+            <div key={field.label} className="space-y-1 flex items-start">
+              {field.icon && <div className="mr-2.5 mt-0.5 shrink-0">{field.icon}</div>}
+              <div>
+                <p className="text-xs uppercase tracking-wider font-medium text-muted-foreground">
+                  {field.label}
+                </p>
+                <p className="text-md font-semibold text-foreground break-words">
+                  {String(field.value || 'N/A')}
+                </p>
+              </div>
             </div>
           ))}
+        </div>
+        
+        <Separator className="my-4 bg-border/50" />
+        
+        <div>
+          <h3 className="text-lg font-semibold text-accent mb-2 tracking-tight flex items-center">
+             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-accent"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.51a2 2 0 0 1 1-1.72l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            Issue Reported
+          </h3>
+          <div className="bg-muted/20 p-4 rounded-md shadow-inner border border-border/20">
+            <p className="text-md text-foreground/90 leading-relaxed">
+              {complaint.complaints || 'No issue description provided.'}
+            </p>
+          </div>
         </div>
       </CardContent>
     </Card>
   );
 }
+

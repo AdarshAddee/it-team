@@ -10,9 +10,7 @@ export default {
   theme: {
   	extend: {
       fontFamily: {
-        lora: ['var(--font-lora)', 'serif'],
-        'playfair-display': ['var(--font-playfair-display)', 'serif'],
-        montserrat: ['var(--font-montserrat)', 'sans-serif'], // Added Montserrat
+        poppins: ['var(--font-poppins)', 'sans-serif'], // Set Poppins as primary sans-serif
       },
   		colors: {
   			background: 'hsl(var(--background))',
@@ -67,9 +65,9 @@ export default {
   			}
   		},
   		borderRadius: {
-  			lg: 'var(--radius)', // Will use the updated --radius from globals.css (0.5rem)
-  			md: 'calc(var(--radius) - 2px)', // e.g., 0.5rem - 2px
-  			sm: 'calc(var(--radius) - 4px)'  // e.g., 0.5rem - 4px
+  			lg: 'var(--radius)', 
+  			md: 'calc(var(--radius) - 2px)', 
+  			sm: 'calc(var(--radius) - 4px)'  
   		},
   		keyframes: {
   			'accordion-down': {

@@ -1,33 +1,20 @@
 import type { Metadata } from 'next';
-import { Lora, Playfair_Display, Montserrat } from 'next/font/google';
+import { Poppins } from 'next/font/google'; // Import Poppins
 import './globals.css';
 import { cn } from '@/lib/utils';
-import DeviceGate from '@/components/device-gate'; // Import DeviceGate
+import DeviceGate from '@/components/device-gate';
 
-const lora = Lora({
+// Configure Poppins font with desired weights
+const poppins = Poppins({
   subsets: ['latin'],
-  variable: '--font-lora',
-  weight: ['400', '500', '600', '700'],
-  display: 'swap',
-});
-
-const playfairDisplay = Playfair_Display({
-  subsets: ['latin'],
-  variable: '--font-playfair-display',
-  weight: ['400', '500', '600', '700', '800', '900'],
-  display: 'swap',
-});
-
-const montserrat = Montserrat({
-  subsets: ['latin'],
-  variable: '--font-montserrat',
-  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-poppins',
+  weight: ['300', '400', '500', '600', '700'], // Light, Regular, Medium, SemiBold, Bold
   display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: 'LuxeData Display',
-  description: 'Elegantly displaying your important information.',
+  title: 'GNA Complaints Viewer', // Updated title
+  description: 'View and manage GNA complaints.', // Updated description
 };
 
 export default function RootLayout({
@@ -39,13 +26,11 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
-          'min-h-screen bg-background font-montserrat antialiased', // Changed primary font to montserrat
-          lora.variable,
-          playfairDisplay.variable,
-          montserrat.variable // Added montserrat variable
+          'min-h-screen bg-background font-poppins antialiased', // Set Poppins as the default font
+          poppins.variable // Add Poppins variable
         )}
       >
-        <DeviceGate>{children}</DeviceGate> {/* Wrap children with DeviceGate */}
+        <DeviceGate>{children}</DeviceGate>
       </body>
     </html>
   );
