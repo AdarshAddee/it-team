@@ -30,23 +30,7 @@ export default function DeviceGate({ children }: { children: React.ReactNode }) 
     );
   }
 
-  if (!isMobileDevice) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-background p-6 text-center">
-        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-smartphone-nfc mb-6 h-20 w-20 text-primary opacity-80">
-          <rect width="14" height="20" x="5" y="2" rx="2" ry="2" />
-          <path d="M12 18h.01" />
-        </svg>
-        <h1 className="mb-3 font-playfair-display text-3xl font-bold text-primary">Optimized for Mobile</h1>
-        <p className="max-w-md text-lg text-foreground">
-          This application is designed for the best experience on Android and iOS devices.
-        </p>
-        <p className="mt-2 max-w-md text-md text-muted-foreground">
-          Please open it on your smartphone or tablet to continue.
-        </p>
-      </div>
-    );
-  }
-
+  // Now, always render children regardless of device type.
+  // The app is optimized for mobile, but accessible on desktop.
   return <>{children}</>;
 }
