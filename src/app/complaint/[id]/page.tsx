@@ -6,6 +6,7 @@ import { get, ref, update } from 'firebase/database';
 import { database } from '@/lib/firebase';
 import { revalidatePath } from 'next/cache';
 import Link from 'next/link';
+import { format } from 'date-fns'; // Import format from date-fns
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import UpdateComplaintForm from '@/components/update-complaint-form';
@@ -72,17 +73,14 @@ export async function updateComplaintAction(prevState: any, formData: FormData) 
   if (comment) { 
     updates.comment = comment;
   } else {
-    updates.comment = '';
+    updates.comment = ''; // Ensure comment is an empty string if not provided or cleared
   }
 
   if (status === 'completed') {
-    updates['date-solved'] = new Date().toISOString();
+    updates['date-solved'] = format(new Date(), 'dd/MM/yyyy | HH:mm'); // Format the date and time
   } else {
     // If status is not 'completed', ensure 'date-solved' is cleared or set to empty
-    // Setting to null would remove the field in RTDB. For consistency, let's use an empty string if it previously existed.
-    // Or, to explicitly remove, one might fetch the current data and delete the key if not 'completed'.
-    // For simplicity here, if it's not completed, we ensure it's an empty string.
-    // If you want to remove the field, you'd set `updates['date-solved'] = null;`
+    // Setting to null would remove the field in RTDB. For consistency, let's use an empty string.
     updates['date-solved'] = ''; 
   }
 
@@ -116,6 +114,7 @@ const formatDisplayValue = (
     case 'issue':
     case 'comment':
       if (value.length > 0) {
+        // Only capitalize first letter, leave rest as is to preserve specific capitalizations
         return value.charAt(0).toUpperCase() + value.slice(1);
       }
       return value;
@@ -147,12 +146,14 @@ export default async function ComplaintUpdatePage({ params }: { params: { id: st
   let displayDate = complaint.date;
   if (complaint.date && !isNaN(new Date(complaint.date).getTime())) {
     if (complaint.date.length === 4 && /^\d{4}$/.test(complaint.date)) {
+        // If it's a 4-digit year, display as is
         displayDate = complaint.date; 
     } else {
         try {
+            // Attempt to parse and format other valid date strings
             const dateObj = new Date(complaint.date);
-            if (!isNaN(dateObj.valueOf())) { 
-                 displayDate = dateObj.toLocaleDateString('en-GB', {
+            if (!isNaN(dateObj.valueOf())) { // Check if dateObj is a valid date
+                 displayDate = dateObj.toLocaleDateString('en-GB', { // DD/MM/YYYY format
                     day: '2-digit',
                     month: '2-digit',
                     year: 'numeric'
