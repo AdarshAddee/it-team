@@ -14,7 +14,7 @@ import { Send } from 'lucide-react';
 interface UpdateComplaintFormProps {
   complaintId: string;
   currentComment: string;
-  currentStatus: string; // Expect 'Pending' or 'Completed'
+  currentStatus: string; // Expect 'pending' or 'completed' (lowercase)
   updateAction: (prevState: any, formData: FormData) => Promise<{ success: boolean; message: string }>;
 }
 
@@ -30,7 +30,7 @@ function SubmitButton() {
 export default function UpdateComplaintForm({
   complaintId,
   currentComment,
-  currentStatus,
+  currentStatus, // will be 'pending' or 'completed'
   updateAction,
 }: UpdateComplaintFormProps) {
   const { toast } = useToast();
@@ -38,20 +38,25 @@ export default function UpdateComplaintForm({
   const [state, formAction] = useFormState(updateAction, initialState);
 
   useEffect(() => {
-    if (state?.success) {
-      toast({
-        title: 'Success!',
-        description: state.message,
-        variant: 'default', 
-      });
-    } else if (state?.message && !state.success) {
+    if (state?.message) { // Check if message exists to avoid toast on initial load
+      if (state.success) {
         toast({
-            title: 'Error',
-            description: state.message,
-            variant: 'destructive',
+          title: 'Success!',
+          description: state.message,
+          variant: 'default', 
         });
+      } else {
+          toast({
+              title: 'Error',
+              description: state.message,
+              variant: 'destructive',
+          });
+      }
     }
   }, [state, toast]);
+
+  // Ensure currentStatus is lowercase for comparison and defaultValue
+  const defaultFormStatus = currentStatus ? currentStatus.toLowerCase() : 'completed';
 
   return (
     <form action={formAction}>
@@ -65,20 +70,21 @@ export default function UpdateComplaintForm({
             name="comment"
             placeholder="Add any relevant comments or notes here..."
             rows={4}
-            defaultValue={currentComment}
+            defaultValue={currentComment} // Display original comment, will be lowercased on save
             className="text-sm"
           />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="status" className="font-medium">Status</Label>
-          <Select name="status" defaultValue={currentStatus} required>
+          <Select name="status" defaultValue={defaultFormStatus} required>
             <SelectTrigger id="status" className="w-full text-sm">
               <SelectValue placeholder="Select status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Pending">Pending</SelectItem>
-              <SelectItem value="Completed">Completed</SelectItem>
+              {/* Values are lowercase to match what will be saved */}
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
             </SelectContent>
           </Select>
         </div>

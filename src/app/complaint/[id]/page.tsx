@@ -8,7 +8,7 @@ import { revalidatePath } from 'next/cache';
 import Link from 'next/link';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import UpdateComplaintForm from '@/components/update-complaint-form'; // Import the new form component
+import UpdateComplaintForm from '@/components/update-complaint-form';
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, User, Building, Hash, Home, MessageSquareWarning, Edit, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -27,7 +27,7 @@ async function getComplaintDetails(id: string): Promise<Complaint | null> {
         'room-no': data['room-no'] || 'Unknown Room',
         complaints: data.complaints || 'No issue described',
         date: data.date || 'N/A',
-        status: data.status, // Keep as is, default handled in form or display
+        status: data.status ? String(data.status).toLowerCase() : 'pending', // Ensure lowercase, default to pending
         comment: data.comment || '',
       };
     } else {
@@ -43,11 +43,17 @@ async function getComplaintDetails(id: string): Promise<Complaint | null> {
 export async function updateComplaintAction(prevState: any, formData: FormData) {
   'use server';
   const complaintId = formData.get('complaintId') as string;
-  const status = formData.get('status') as string;
-  const comment = formData.get('comment') as string;
+  let status = formData.get('status') as string;
+  let comment = formData.get('comment') as string;
 
   if (!complaintId || !status) {
     return { success: false, message: 'Complaint ID and Status are required.' };
+  }
+
+  // Convert to lowercase before saving
+  status = status.toLowerCase();
+  if (comment !== null && comment !== undefined) {
+    comment = comment.toLowerCase();
   }
 
   const complaintRef = ref(database, `gna-complaints/${complaintId}`);
@@ -55,6 +61,7 @@ export async function updateComplaintAction(prevState: any, formData: FormData) 
   if (comment !== null && comment !== undefined) { 
     updates.comment = comment;
   }
+
 
   try {
     await update(complaintRef, updates);
@@ -85,7 +92,12 @@ const formatDisplayValue = (
       return value.toUpperCase();
     case 'issue':
     case 'comment':
-      return value.charAt(0).toUpperCase() + value.slice(1);
+      // For issue and comment, let's ensure first letter is uppercase, rest as is for flexibility (e.g. acronyms)
+      // Since comments are stored lowercase, we'll uppercase the first letter for display
+      if (value.length > 0) {
+        return value.charAt(0).toUpperCase() + value.slice(1);
+      }
+      return value;
     default:
       return value;
   }
@@ -151,11 +163,10 @@ export default async function ComplaintUpdatePage({ params }: { params: { id: st
               Update Status & Add Comment
             </CardTitle>
           </CardHeader>
-          {/* Use the client component for the form */}
           <UpdateComplaintForm
             complaintId={complaint.id}
             currentComment={complaint.comment || ''}
-            currentStatus={complaint.status || 'Completed'} // Default to 'Completed' if no status
+            currentStatus={complaint.status || 'completed'} // Default to 'completed' (lowercase) if no status
             updateAction={updateComplaintAction}
           />
         </Card>

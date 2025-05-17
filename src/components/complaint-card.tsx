@@ -36,7 +36,12 @@ const formatDisplayValue = (
     case 'room-no':
       return value.toUpperCase();
     case 'issue':
-      return value.charAt(0).toUpperCase() + value.slice(1);
+      // For issue and comment, ensure first letter is uppercase for display
+      // Since actual data might be lowercase from DB (especially comments)
+      if (value.length > 0) {
+        return value.charAt(0).toUpperCase() + value.slice(1);
+      }
+      return value;
     default:
       return value;
   }
@@ -66,7 +71,10 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
     displayDate = 'N/A';
   }
 
-  const statusVariant = complaint.status === 'Completed' ? 'default' : 'secondary';
+  // Status is now expected to be lowercase from data fetching ('pending' or 'completed')
+  const statusVariant = complaint.status === 'completed' ? 'default' : 'secondary';
+  const statusText = complaint.status === 'completed' ? 'Completed' : 'Pending';
+
 
   return (
     <Link href={`/complaint/${complaint.id}`} passHref>
@@ -78,23 +86,23 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
         style={{ animationDelay: `${index * 150 + 200}ms` }}
       >
         <CardHeader className="p-6 bg-gradient-to-br from-card to-muted/10 border-b border-border/30 relative">
-          <CardTitle className="text-2xl font-bold text-primary flex items-center">
+          <CardTitle className="text-2xl font-bold text-primary flex items-center font-poppins">
             <MessageSquareWarning className="w-7 h-7 mr-3 text-accent" />
             Complaint Details
           </CardTitle>
           <div className="ml-[calc(28px+0.75rem)]">
-            <CardDescription className="text-xs text-muted-foreground pt-1">
+            <CardDescription className="text-xs text-muted-foreground pt-1 font-poppins">
               Report ID: {complaint.id}
             </CardDescription>
-            <p className="text-xs text-muted-foreground pt-0.5 flex items-center">
+            <p className="text-xs text-muted-foreground pt-0.5 flex items-center font-poppins">
               <CalendarDays className="w-3 h-3 mr-1.5 text-muted-foreground/80" /> 
               Date: {displayDate}
             </p>
           </div>
           <div className="absolute top-4 right-4 flex items-center space-x-2">
              {complaint.status && (
-                <Badge variant={statusVariant} className="text-xs">
-                    {complaint.status}
+                <Badge variant={statusVariant} className="text-xs font-poppins">
+                    {statusText}
                 </Badge>
              )}
             <Edit3 className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -105,10 +113,10 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
             <div className="space-y-1 flex items-start">
               <User className="w-4 h-4 text-primary mr-2.5 mt-0.5 shrink-0" />
               <div>
-                <p className="text-xs uppercase tracking-wider font-medium text-muted-foreground">
+                <p className="text-xs uppercase tracking-wider font-medium text-muted-foreground font-poppins">
                   Name
                 </p>
-                <p className="text-md font-normal text-foreground break-words">
+                <p className="text-md font-normal text-foreground break-words font-poppins">
                   {formatDisplayValue(complaint.name, 'name')}
                 </p>
               </div>
@@ -117,10 +125,10 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
             <div className="space-y-1 flex items-start">
               <Building className="w-4 h-4 text-primary mr-2.5 mt-0.5 shrink-0" />
               <div>
-                <p className="text-xs uppercase tracking-wider font-medium text-muted-foreground">
+                <p className="text-xs uppercase tracking-wider font-medium text-muted-foreground font-poppins">
                   Department
                 </p>
-                <p className="text-md font-normal text-foreground break-words">
+                <p className="text-md font-normal text-foreground break-words font-poppins">
                   {formatDisplayValue(complaint.dept, 'department')}
                 </p>
               </div>
@@ -129,10 +137,10 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
             <div className="space-y-1 flex items-start">
               <Hash className="w-4 h-4 text-primary mr-2.5 mt-0.5 shrink-0" />
               <div>
-                <p className="text-xs uppercase tracking-wider font-medium text-muted-foreground">
+                <p className="text-xs uppercase tracking-wider font-medium text-muted-foreground font-poppins">
                   Block
                 </p>
-                <p className="text-md font-normal text-foreground break-words">
+                <p className="text-md font-normal text-foreground break-words font-poppins">
                   {formatDisplayValue(complaint.block, 'block')}
                 </p>
               </div>
@@ -141,10 +149,10 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
             <div className="space-y-1 flex items-start">
               <Home className="w-4 h-4 text-primary mr-2.5 mt-0.5 shrink-0" />
               <div>
-                <p className="text-xs uppercase tracking-wider font-medium text-muted-foreground">
+                <p className="text-xs uppercase tracking-wider font-medium text-muted-foreground font-poppins">
                   Room No.
                 </p>
-                <p className="text-md font-normal text-foreground break-words">
+                <p className="text-md font-normal text-foreground break-words font-poppins">
                   {formatDisplayValue(complaint['room-no'], 'room-no')}
                 </p>
               </div>
@@ -154,12 +162,12 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
           <Separator className="my-4 bg-border/50" />
           
           <div>
-            <h3 className="text-lg font-semibold text-accent mb-2 tracking-tight flex items-center">
+            <h3 className="text-lg font-semibold text-accent mb-2 tracking-tight flex items-center font-poppins">
                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-accent"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.51a2 2 0 0 1 1-1.72l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
               Issue Reported
             </h3>
             <div className="bg-muted/20 p-4 rounded-md shadow-inner border border-border/20">
-              <p className="text-md text-foreground/90 leading-relaxed font-normal">
+              <p className="text-md text-foreground/90 leading-relaxed font-normal font-poppins">
                 {formatDisplayValue(complaint.complaints, 'issue')}
               </p>
             </div>

@@ -12,10 +12,10 @@ export interface Complaint {
   dept: string;
   block: string;
   'room-no': string;
-  complaints: string;
+  complaints: string; // Was 'issue', now 'complaints' from DB
   date: string;
-  status?: string; // Added status field
-  comment?: string; // Added comment field
+  status?: string; 
+  comment?: string; 
 }
 
 async function getComplaints(): Promise<Complaint[]> {
@@ -29,13 +29,13 @@ async function getComplaints(): Promise<Complaint[]> {
       const complaintsArray: Complaint[] = Object.keys(data).map(key => ({
         id: key,
         name: data[key].name || 'Unknown Name',
-        dept: data[key].dept || 'Unknown Department',
+        dept: data[key].dept || 'Unknown Department', // Corrected from 'dept '
         block: data[key].block || 'Unknown Block',
         'room-no': data[key]['room-no'] || 'Unknown Room',
-        complaints: data[key].complaints || 'No issue described',
+        complaints: data[key].complaints || 'No issue described', // Corrected from 'issue'
         date: data[key].date || 'N/A',
-        status: data[key].status || 'Pending', // Default to 'Pending' if not set
-        comment: data[key].comment || '', // Default to empty string
+        status: data[key].status ? String(data[key].status).toLowerCase() : 'pending', // Ensure lowercase, default to pending
+        comment: data[key].comment || '', 
       }));
       return complaintsArray.reverse(); 
     } else {
@@ -57,10 +57,10 @@ export default async function LuxeDataComplaintsPage() {
         className="w-full max-w-md sm:max-w-lg md:max-w-2xl opacity-0 animate-fadeIn mb-10"
         style={{ animationDelay: `50ms` }} 
       >
-        <h1 className="text-4xl sm:text-5xl font-bold text-primary mb-3 text-center">
+        <h1 className="text-4xl sm:text-5xl font-bold text-primary mb-3 text-center font-poppins">
           GNA Complaints
         </h1>
-        <p className="text-center text-muted-foreground mb-8 text-lg">
+        <p className="text-center text-muted-foreground mb-8 text-lg font-poppins">
           Recent Issue Reports
         </p>
         <Separator className="bg-border/70" />
@@ -71,7 +71,7 @@ export default async function LuxeDataComplaintsPage() {
           className="w-full max-w-md sm:max-w-lg md:max-w-2xl p-8 md:p-10 rounded-xl shadow-lg bg-card border-border opacity-0 animate-fadeIn text-center"
           style={{ animationDelay: `200ms` }}
         >
-          <p className="text-muted-foreground text-lg">No complaints to display at the moment.</p>
+          <p className="text-muted-foreground text-lg font-poppins">No complaints to display at the moment.</p>
         </div>
       ) : (
         <div className="w-full max-w-md sm:max-w-lg md:max-w-2xl">
