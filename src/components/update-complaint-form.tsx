@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useActionState } from 'react'; // Changed from 'react-dom'
+import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -36,7 +36,7 @@ export default function UpdateComplaintForm({
 }: UpdateComplaintFormProps) {
   const { toast } = useToast();
   const initialState = { success: false, message: '' };
-  const [state, formAction] = useActionState(updateAction, initialState); // Changed from useFormState
+  const [state, formAction] = useActionState(updateAction, initialState);
 
   useEffect(() => {
     if (state?.message) { // Check if message exists to avoid toast on initial load
@@ -44,13 +44,15 @@ export default function UpdateComplaintForm({
         toast({
           title: 'Success!',
           description: state.message,
-          variant: 'default', 
+          variant: 'default',
+          duration: 2000, // Auto-dismiss after 2 seconds
         });
       } else {
           toast({
               title: 'Error',
               description: state.message,
               variant: 'destructive',
+              duration: 5000, // Auto-dismiss after 5 seconds for errors
           });
       }
     }
