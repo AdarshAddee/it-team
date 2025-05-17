@@ -6,7 +6,7 @@ import { get, ref, update } from 'firebase/database';
 import { database } from '@/lib/firebase';
 import { revalidatePath } from 'next/cache';
 import Link from 'next/link';
-import { format } from 'date-fns'; // Import format from date-fns
+// import { format } from 'date-fns'; // No longer needed directly here for date-solved
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import UpdateComplaintForm from '@/components/update-complaint-form';
@@ -80,15 +80,21 @@ export async function updateComplaintAction(prevState: any, formData: FormData) 
   if (status === 'completed') {
     const now = new Date();
     // Get parts of the date and time in Asia/Kolkata timezone
-    // Using en-GB locale typically gives DD/MM/YYYY for date parts.
-    const day = now.toLocaleString('en-GB', { timeZone: 'Asia/Kolkata', day: '2-digit' });
-    const month = now.toLocaleString('en-GB', { timeZone: 'Asia/Kolkata', month: '2-digit' });
-    const year = now.toLocaleString('en-GB', { timeZone: 'Asia/Kolkata', year: 'numeric' });
-    const hour = now.toLocaleString('en-GB', { timeZone: 'Asia/Kolkata', hour: '2-digit', hour12: false }); // 24-hour format
-    const minute = now.toLocaleString('en-GB', { timeZone: 'Asia/Kolkata', minute: '2-digit' });
+    const datePart = now.toLocaleDateString('en-GB', {
+      timeZone: 'Asia/Kolkata',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }); // DD/MM/YYYY
 
-    // Assemble the string in "dd/MM/yyyy | HH:mm" format
-    updates['date-solved'] = `${day}/${month}/${year} | ${hour}:${minute}`;
+    const timePart = now.toLocaleTimeString('en-US', {
+      timeZone: 'Asia/Kolkata',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    }); // HH:MM AM/PM (e.g., 03:30 PM)
+    
+    updates['date-solved'] = `${datePart} | ${timePart}`;
   } else {
     // If status is not 'completed', ensure 'date-solved' is cleared or set to empty
     updates['date-solved'] = ''; 
@@ -212,6 +218,11 @@ export default async function ComplaintUpdatePage({ params }: { params: { id: st
             <CardDescription className="text-xs text-muted-foreground pt-1 ml-[calc(24px+0.625rem)]">
               Report ID: {complaint.id} | Date Reported: {displayDate}
             </CardDescription>
+             {complaint['date-solved'] && (
+              <CardDescription className="text-xs text-muted-foreground pt-0.5 ml-[calc(24px+0.625rem)]">
+                Date Solved: {complaint['date-solved']}
+              </CardDescription>
+            )}
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
@@ -272,3 +283,5 @@ export default async function ComplaintUpdatePage({ params }: { params: { id: st
     </main>
   );
 }
+
+    
