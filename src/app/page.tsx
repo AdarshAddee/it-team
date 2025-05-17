@@ -13,7 +13,9 @@ export interface Complaint {
   block: string;
   'room-no': string;
   complaints: string;
-  date: string; // Added date field
+  date: string;
+  status?: string; // Added status field
+  comment?: string; // Added comment field
 }
 
 async function getComplaints(): Promise<Complaint[]> {
@@ -31,7 +33,9 @@ async function getComplaints(): Promise<Complaint[]> {
         block: data[key].block || 'Unknown Block',
         'room-no': data[key]['room-no'] || 'Unknown Room',
         complaints: data[key].complaints || 'No issue described',
-        date: data[key].date || 'N/A', // Fetch date, fallback to 'N/A'
+        date: data[key].date || 'N/A',
+        status: data[key].status || 'Pending', // Default to 'Pending' if not set
+        comment: data[key].comment || '', // Default to empty string
       }));
       return complaintsArray.reverse(); 
     } else {
