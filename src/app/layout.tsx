@@ -1,20 +1,21 @@
+
 import type { Metadata } from 'next';
-import { Poppins } from 'next/font/google'; // Import Poppins
+import { Poppins } from 'next/font/google';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import DeviceGate from '@/components/device-gate';
+import { Toaster } from "@/components/ui/toaster"; // Import Toaster
 
-// Configure Poppins font with desired weights
 const poppins = Poppins({
   subsets: ['latin'],
   variable: '--font-poppins',
-  weight: ['300', '400', '500', '600', '700'], // Light, Regular, Medium, SemiBold, Bold
+  weight: ['300', '400', '500', '600', '700'],
   display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: 'GNA Complaints Viewer', // Updated title
-  description: 'View and manage GNA complaints.', // Updated description
+  title: 'GNA Complaints Viewer',
+  description: 'View and manage GNA complaints.',
 };
 
 export default function RootLayout({
@@ -26,11 +27,12 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={cn(
-          'min-h-screen bg-background font-poppins antialiased', // Set Poppins as the default font
-          poppins.variable // Add Poppins variable
+          'min-h-screen bg-background font-poppins antialiased',
+          poppins.variable
         )}
       >
         <DeviceGate>{children}</DeviceGate>
+        <Toaster /> {/* Add Toaster component here */}
       </body>
     </html>
   );

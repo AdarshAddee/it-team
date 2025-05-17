@@ -8,12 +8,10 @@ import { revalidatePath } from 'next/cache';
 import Link from 'next/link';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+import UpdateComplaintForm from '@/components/update-complaint-form'; // Import the new form component
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, User, Building, Hash, Home, MessageSquareWarning, CalendarDays, Send, AlertCircle, Edit } from 'lucide-react';
+import { ArrowLeft, User, Building, Hash, Home, MessageSquareWarning, Edit, AlertCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 async function getComplaintDetails(id: string): Promise<Complaint | null> {
   const complaintRef = ref(database, `gna-complaints/${id}`);
@@ -29,7 +27,7 @@ async function getComplaintDetails(id: string): Promise<Complaint | null> {
         'room-no': data['room-no'] || 'Unknown Room',
         complaints: data.complaints || 'No issue described',
         date: data.date || 'N/A',
-        status: data.status || 'Pending',
+        status: data.status, // Keep as is, default handled in form or display
         comment: data.comment || '',
       };
     } else {
@@ -42,7 +40,7 @@ async function getComplaintDetails(id: string): Promise<Complaint | null> {
   }
 }
 
-async function updateComplaintAction(formData: FormData) {
+export async function updateComplaintAction(prevState: any, formData: FormData) {
   'use server';
   const complaintId = formData.get('complaintId') as string;
   const status = formData.get('status') as string;
@@ -153,41 +151,13 @@ export default async function ComplaintUpdatePage({ params }: { params: { id: st
               Update Status & Add Comment
             </CardTitle>
           </CardHeader>
-          <form action={updateComplaintAction}>
-            <CardContent className="space-y-6">
-              <input type="hidden" name="complaintId" value={complaint.id} />
-              
-              <div className="space-y-2">
-                <Label htmlFor="comment" className="font-medium">Comment (Optional)</Label>
-                <Textarea
-                  id="comment"
-                  name="comment"
-                  placeholder="Add any relevant comments or notes here..."
-                  rows={4}
-                  defaultValue={complaint.comment || ''}
-                  className="text-sm"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="status" className="font-medium">Status</Label>
-                <Select name="status" defaultValue={complaint.status || 'Pending'} required>
-                  <SelectTrigger id="status" className="w-full text-sm">
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Pending">Pending</SelectItem>
-                    <SelectItem value="Completed">Completed</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button type="submit" className="w-full sm:w-auto">
-                <Send className="mr-2 h-4 w-4" /> Submit Update
-              </Button>
-            </CardFooter>
-          </form>
+          {/* Use the client component for the form */}
+          <UpdateComplaintForm
+            complaintId={complaint.id}
+            currentComment={complaint.comment || ''}
+            currentStatus={complaint.status || 'Completed'} // Default to 'Completed' if no status
+            updateAction={updateComplaintAction}
+          />
         </Card>
         
         <Card className="mb-8 shadow-lg border border-border/30 rounded-lg">
@@ -253,5 +223,3 @@ export default async function ComplaintUpdatePage({ params }: { params: { id: st
     </main>
   );
 }
-
-    
