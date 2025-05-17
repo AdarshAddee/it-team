@@ -2,7 +2,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState } from 'react'; // Changed from 'react-dom'
+import { useFormStatus } from 'react-dom';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -35,7 +36,7 @@ export default function UpdateComplaintForm({
 }: UpdateComplaintFormProps) {
   const { toast } = useToast();
   const initialState = { success: false, message: '' };
-  const [state, formAction] = useFormState(updateAction, initialState);
+  const [state, formAction] = useActionState(updateAction, initialState); // Changed from useFormState
 
   useEffect(() => {
     if (state?.message) { // Check if message exists to avoid toast on initial load
