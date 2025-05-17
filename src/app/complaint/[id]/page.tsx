@@ -41,7 +41,8 @@ async function getComplaintDetails(id: string): Promise<Complaint | null> {
       console.log(`No complaint found with ID: ${id}`);
       return null;
     }
-  } catch (error) {
+  } catch (error)
+{
     console.error(`Error fetching complaint ${id} from Firebase:`, error);
     return null;
   }
@@ -77,10 +78,19 @@ export async function updateComplaintAction(prevState: any, formData: FormData) 
   }
 
   if (status === 'completed') {
-    updates['date-solved'] = format(new Date(), 'dd/MM/yyyy | HH:mm'); // Format the date and time
+    const now = new Date();
+    // Get parts of the date and time in Asia/Kolkata timezone
+    // Using en-GB locale typically gives DD/MM/YYYY for date parts.
+    const day = now.toLocaleString('en-GB', { timeZone: 'Asia/Kolkata', day: '2-digit' });
+    const month = now.toLocaleString('en-GB', { timeZone: 'Asia/Kolkata', month: '2-digit' });
+    const year = now.toLocaleString('en-GB', { timeZone: 'Asia/Kolkata', year: 'numeric' });
+    const hour = now.toLocaleString('en-GB', { timeZone: 'Asia/Kolkata', hour: '2-digit', hour12: false }); // 24-hour format
+    const minute = now.toLocaleString('en-GB', { timeZone: 'Asia/Kolkata', minute: '2-digit' });
+
+    // Assemble the string in "dd/MM/yyyy | HH:mm" format
+    updates['date-solved'] = `${day}/${month}/${year} | ${hour}:${minute}`;
   } else {
     // If status is not 'completed', ensure 'date-solved' is cleared or set to empty
-    // Setting to null would remove the field in RTDB. For consistency, let's use an empty string.
     updates['date-solved'] = ''; 
   }
 
