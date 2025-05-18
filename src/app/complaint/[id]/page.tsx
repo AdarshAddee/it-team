@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import UpdateComplaintForm from '@/components/update-complaint-form';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, User, Building, Hash, Home, MessageSquareWarning, Edit, AlertCircle, FileText } from 'lucide-react';
+import { ArrowLeft, User, Building, Hash, Home, MessageSquareWarning, Edit, AlertCircle, FileText, CalendarClock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 // Extend BaseComplaint for this page, ensuring 'date-solved' is included
@@ -192,6 +192,12 @@ export default async function ComplaintUpdatePage({ params }: { params: { id: st
               <Edit className="w-6 h-6 mr-2.5 text-accent" />
               Update Status & Add Comment
             </CardTitle>
+            {complaint.status === 'completed' && complaint['date-solved'] && (
+              <CardDescription className="text-xs text-muted-foreground pt-1 flex items-center ml-[calc(24px+0.625rem)]">
+                <CalendarClock className="w-3.5 h-3.5 mr-1.5 text-muted-foreground/80" />
+                Solved on: {complaint['date-solved']}
+              </CardDescription>
+            )}
           </CardHeader>
           <UpdateComplaintForm
             complaintId={complaint.id}
@@ -210,11 +216,6 @@ export default async function ComplaintUpdatePage({ params }: { params: { id: st
             <CardDescription className="text-xs text-muted-foreground pt-1 ml-[calc(24px+0.625rem)]">
               Report ID: {complaint.id} | Date Reported: {displayDate}
             </CardDescription>
-             {complaint['date-solved'] && (
-              <CardDescription className="text-xs text-muted-foreground pt-0.5 ml-[calc(24px+0.625rem)]">
-                Date Solved: {complaint['date-solved']}
-              </CardDescription>
-            )}
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
