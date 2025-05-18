@@ -80,12 +80,21 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
     <Link href={`/complaint/${complaint.id}`} passHref>
       <Card
         className={cn(
-          "w-full opacity-0 animate-fadeIn mb-8 shadow-xl border border-border/30 rounded-lg bg-card overflow-hidden cursor-pointer",
-          "transition-all duration-300 ease-out hover:shadow-2xl hover:border-primary/30 group"
+          "w-full opacity-0 animate-fadeIn mb-8 shadow-xl rounded-lg overflow-hidden cursor-pointer group",
+          "transition-all duration-300 ease-out",
+          complaint.status === 'pending' 
+            ? 'bg-yellow-100 border-yellow-300 hover:shadow-2xl hover:border-yellow-400' 
+            : 'bg-card border-border/30 hover:shadow-2xl hover:border-primary/30'
         )}
         style={{ animationDelay: `${index * 150 + 200}ms` }}
       >
-        <CardHeader className="p-6 bg-gradient-to-br from-card to-muted/10 border-b border-border/30 relative">
+        <CardHeader className={cn(
+            "p-6 border-b relative",
+            complaint.status === 'pending' 
+                ? 'bg-gradient-to-br from-yellow-100 to-yellow-50/50 border-yellow-300/70'
+                : 'bg-gradient-to-br from-card to-muted/10 border-border/30'
+            )}
+        >
           <CardTitle className="text-2xl font-bold text-primary flex items-center font-poppins">
             <MessageSquareWarning className="w-7 h-7 mr-3 text-accent" />
             Complaint Details
@@ -101,7 +110,13 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
           </div>
           <div className="absolute top-4 right-4 flex items-center space-x-2">
              {complaint.status && (
-                <Badge variant={statusVariant} className="text-xs font-poppins">
+                <Badge 
+                    variant={statusVariant} 
+                    className={cn(
+                        "text-xs font-poppins",
+                        complaint.status === 'pending' && 'bg-amber-500 text-white border-amber-600 hover:bg-amber-600' // More prominent pending badge on yellow
+                    )}
+                >
                     {statusText}
                 </Badge>
              )}
@@ -159,14 +174,24 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
             </div>
           </div>
           
-          <Separator className="my-4 bg-border/50" />
+          <Separator className={cn(
+              "my-4",
+              complaint.status === 'pending' ? 'bg-yellow-300/80' : 'bg-border/50'
+            )} 
+          />
           
           <div>
             <h3 className="text-lg font-semibold text-accent mb-2 tracking-tight flex items-center font-poppins">
                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-accent"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.51a2 2 0 0 1 1-1.72l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
               Issue Reported
             </h3>
-            <div className="bg-muted/20 p-4 rounded-md shadow-inner border border-border/20">
+            <div className={cn(
+                "p-4 rounded-md shadow-inner",
+                complaint.status === 'pending' 
+                    ? 'bg-yellow-50/70 border border-yellow-200/90'
+                    : 'bg-muted/20 border border-border/20'
+                )}
+            >
               <p className="text-md text-foreground/90 leading-relaxed font-normal font-poppins">
                 {formatDisplayValue(complaint.complaints, 'issue')}
               </p>
@@ -177,3 +202,4 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
     </Link>
   );
 }
+
