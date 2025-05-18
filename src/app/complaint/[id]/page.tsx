@@ -6,7 +6,6 @@ import { get, ref, update } from 'firebase/database';
 import { database } from '@/lib/firebase';
 import { revalidatePath } from 'next/cache';
 import Link from 'next/link';
-// import { format } from 'date-fns'; // No longer needed directly here for date-solved
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import UpdateComplaintForm from '@/components/update-complaint-form';
@@ -15,8 +14,8 @@ import { ArrowLeft, User, Building, Hash, Home, MessageSquareWarning, Edit, Aler
 import { Button } from '@/components/ui/button';
 
 // Extend BaseComplaint for this page, ensuring 'date-solved' is included
-export interface Complaint extends Omit<BaseComplaint, 'date-solved' | 'date_resolved'> { // Omit old field if it existed with a typo
-  'date-solved'?: string; // Use the correct hyphenated field name
+export interface Complaint extends Omit<BaseComplaint, 'date-solved' | 'date_resolved'> { 
+  'date-solved'?: string; 
 }
 
 async function getComplaintDetails(id: string): Promise<Complaint | null> {
@@ -58,7 +57,6 @@ export async function updateComplaintAction(prevState: any, formData: FormData) 
     return { success: false, message: 'Complaint ID and Status are required.' };
   }
 
-  // Convert to lowercase before saving
   status = status.toLowerCase();
   if (comment !== null && comment !== undefined) {
     comment = comment.trim() === '' ? '' : comment.toLowerCase(); 
@@ -67,36 +65,33 @@ export async function updateComplaintAction(prevState: any, formData: FormData) 
   }
 
   const complaintRef = ref(database, `gna-complaints/${complaintId}`);
-  // Use a more specific type for updates, allowing string keys for Firebase
   const updates: { [key: string]: any } = { status };
 
 
   if (comment) { 
     updates.comment = comment;
   } else {
-    updates.comment = ''; // Ensure comment is an empty string if not provided or cleared
+    updates.comment = ''; 
   }
 
   if (status === 'completed') {
     const now = new Date();
-    // Get parts of the date and time in Asia/Kolkata timezone
     const datePart = now.toLocaleDateString('en-GB', {
       timeZone: 'Asia/Kolkata',
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
-    }); // DD/MM/YYYY
+    }); 
 
     const timePart = now.toLocaleTimeString('en-US', {
       timeZone: 'Asia/Kolkata',
       hour: '2-digit',
       minute: '2-digit',
       hour12: true,
-    }); // HH:MM AM/PM (e.g., 03:30 PM)
+    }); 
     
     updates['date-solved'] = `${datePart} | ${timePart}`;
   } else {
-    // If status is not 'completed', ensure 'date-solved' is cleared or set to empty
     updates['date-solved'] = ''; 
   }
 
@@ -130,7 +125,6 @@ const formatDisplayValue = (
     case 'issue':
     case 'comment':
       if (value.length > 0) {
-        // Only capitalize first letter, leave rest as is to preserve specific capitalizations
         return value.charAt(0).toUpperCase() + value.slice(1);
       }
       return value;
@@ -162,14 +156,12 @@ export default async function ComplaintUpdatePage({ params }: { params: { id: st
   let displayDate = complaint.date;
   if (complaint.date && !isNaN(new Date(complaint.date).getTime())) {
     if (complaint.date.length === 4 && /^\d{4}$/.test(complaint.date)) {
-        // If it's a 4-digit year, display as is
         displayDate = complaint.date; 
     } else {
         try {
-            // Attempt to parse and format other valid date strings
             const dateObj = new Date(complaint.date);
-            if (!isNaN(dateObj.valueOf())) { // Check if dateObj is a valid date
-                 displayDate = dateObj.toLocaleDateString('en-GB', { // DD/MM/YYYY format
+            if (!isNaN(dateObj.valueOf())) { 
+                 displayDate = dateObj.toLocaleDateString('en-GB', { 
                     day: '2-digit',
                     month: '2-digit',
                     year: 'numeric'
@@ -283,5 +275,3 @@ export default async function ComplaintUpdatePage({ params }: { params: { id: st
     </main>
   );
 }
-
-    
