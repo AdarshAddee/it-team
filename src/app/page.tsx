@@ -1,9 +1,8 @@
 
 import { get, ref, query, orderByKey } from 'firebase/database';
 import { database } from '@/lib/firebase';
-import ComplaintCard from '@/components/complaint-card';
+import RealtimeComplaintsDisplay from '@/components/realtime-complaints-display'; // New client component
 import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
 
 // Define the Complaint type
 export interface Complaint {
@@ -12,13 +11,14 @@ export interface Complaint {
   dept: string;
   block: string;
   'room-no': string;
-  complaints: string; // Was 'issue', now 'complaints' from DB
+  complaints: string;
   date: string;
-  status?: string; 
-  comment?: string; 
-  'date-solved'?: string; // Changed from date_resolved
+  status?: string;
+  comment?: string;
+  'date-solved'?: string;
 }
 
+// This function will still be used for the initial server-side fetch
 async function getComplaints(): Promise<Complaint[]> {
   const complaintsRef = ref(database, 'gna-complaints');
   const complaintsQuery = query(complaintsRef, orderByKey());
@@ -35,29 +35,29 @@ async function getComplaints(): Promise<Complaint[]> {
         'room-no': data[key]['room-no'] || 'Unknown Room',
         complaints: data[key].complaints || 'No issue described',
         date: data[key].date || 'N/A',
-        status: data[key].status ? String(data[key].status).toLowerCase() : 'pending', // Ensure lowercase, default to pending
-        comment: data[key].comment || '', 
-        'date-solved': data[key]['date-solved'] || '', // Changed from date_resolved
+        status: data[key].status ? String(data[key].status).toLowerCase() : 'pending',
+        comment: data[key].comment || '',
+        'date-solved': data[key]['date-solved'] || '',
       }));
-      return complaintsArray.reverse(); 
+      return complaintsArray.reverse();
     } else {
       console.log("No complaints found in Firebase.");
       return [];
     }
   } catch (error) {
     console.error("Error fetching complaints from Firebase:", error);
-    return []; 
+    return [];
   }
 }
 
 export default async function LuxeDataComplaintsPage() {
-  const complaints = await getComplaints();
+  const initialComplaints = await getComplaints();
 
   return (
     <main className="min-h-screen w-full flex flex-col items-center p-4 sm:p-6 md:p-8 bg-background selection:bg-primary/20 font-poppins">
-      <div 
+      <div
         className="w-full max-w-md sm:max-w-lg md:max-w-2xl opacity-0 animate-fadeIn mb-10"
-        style={{ animationDelay: `50ms` }} 
+        style={{ animationDelay: `50ms` }}
       >
         <h1 className="text-4xl sm:text-5xl font-bold text-primary mb-3 text-center">
           GNA Complaints
@@ -68,20 +68,8 @@ export default async function LuxeDataComplaintsPage() {
         <Separator className="bg-border/70" />
       </div>
 
-      {complaints.length === 0 ? (
-        <div 
-          className="w-full max-w-md sm:max-w-lg md:max-w-2xl p-8 md:p-10 rounded-xl shadow-lg bg-card border-border opacity-0 animate-fadeIn text-center"
-          style={{ animationDelay: `200ms` }}
-        >
-          <p className="text-muted-foreground text-lg">No complaints to display at the moment.</p>
-        </div>
-      ) : (
-        <div className="w-full max-w-md sm:max-w-lg md:max-w-2xl">
-          {complaints.map((complaint, index) => (
-            <ComplaintCard key={complaint.id} complaint={complaint} index={index} />
-          ))}
-        </div>
-      )}
+      {/* Use the new client component to display complaints */}
+      <RealtimeComplaintsDisplay initialComplaints={initialComplaints} />
     </main>
   );
 }
