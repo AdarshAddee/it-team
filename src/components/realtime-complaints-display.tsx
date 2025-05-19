@@ -9,16 +9,14 @@ import ComplaintCard from '@/components/complaint-card';
 
 interface RealtimeComplaintsDisplayProps {
   initialComplaints: Complaint[];
+  startingSrNo: number;
 }
 
-export default function RealtimeComplaintsDisplay({ initialComplaints }: RealtimeComplaintsDisplayProps) {
+export default function RealtimeComplaintsDisplay({ initialComplaints, startingSrNo }: RealtimeComplaintsDisplayProps) {
   const [complaints, setComplaints] = useState<Complaint[]>(initialComplaints);
 
   useEffect(() => {
     const complaintsRef = ref(database, 'gna-complaints');
-    // We can use query(complaintsRef, orderByKey()) with onValue as well
-    // to ensure Firebase sends data in a somewhat ordered way,
-    // though we'll still reverse on the client for descending.
     const complaintsQuery = query(complaintsRef, orderByKey());
 
     const listener = onValue(complaintsQuery, (snapshot) => {
@@ -43,10 +41,8 @@ export default function RealtimeComplaintsDisplay({ initialComplaints }: Realtim
       }
     }, (error) => {
       console.error("Error listening to Firebase complaints:", error);
-      // Optionally, set complaints to initial or an error state
     });
 
-    // Cleanup listener on component unmount
     return () => {
       off(complaintsQuery, 'value', listener);
     };
@@ -64,7 +60,12 @@ export default function RealtimeComplaintsDisplay({ initialComplaints }: Realtim
       ) : (
         <div className="w-full max-w-md sm:max-w-lg md:max-w-2xl">
           {complaints.map((complaint, index) => (
-            <ComplaintCard key={complaint.id} complaint={complaint} index={index} />
+            <ComplaintCard 
+              key={complaint.id} 
+              complaint={complaint} 
+              index={index} 
+              displaySerialNo={startingSrNo + index}
+            />
           ))}
         </div>
       )}

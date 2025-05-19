@@ -1,7 +1,7 @@
 
 import { get, ref, query, orderByKey } from 'firebase/database';
 import { database } from '@/lib/firebase';
-import RealtimeComplaintsDisplay from '@/components/realtime-complaints-display'; // New client component
+import RealtimeComplaintsDisplay from '@/components/realtime-complaints-display';
 import { Separator } from "@/components/ui/separator";
 
 // Define the Complaint type
@@ -11,11 +11,30 @@ export interface Complaint {
   dept: string;
   block: string;
   'room-no': string;
-  complaints: string;
+  complaints: string; // Changed from 'issue'
   date: string;
   status?: string;
   comment?: string;
-  'date-solved'?: string;
+  'date-solved'?: string; // Changed from date_resolved
+}
+
+// Function to fetch the starting serial number
+async function getStartingSerialNo(): Promise<number> {
+  const counterRef = ref(database, 'counters/gnaComplaintsSrNo');
+  try {
+    const snapshot = await get(counterRef);
+    if (snapshot.exists()) {
+      const val = snapshot.val();
+      const srNo = parseInt(val);
+      return isNaN(srNo) ? 1 : srNo;
+    } else {
+      console.log("gnaComplaintsSrNo not found in counters, defaulting to 1.");
+      return 1;
+    }
+  } catch (error) {
+    console.error("Error fetching gnaComplaintsSrNo from Firebase:", error);
+    return 1; // Default to 1 in case of error
+  }
 }
 
 // This function will still be used for the initial server-side fetch
@@ -30,14 +49,14 @@ async function getComplaints(): Promise<Complaint[]> {
       const complaintsArray: Complaint[] = Object.keys(data).map(key => ({
         id: key,
         name: data[key].name || 'Unknown Name',
-        dept: data[key].dept || 'Unknown Department',
+        dept: data[key].dept || 'Unknown Department', // Corrected: no space after dept
         block: data[key].block || 'Unknown Block',
         'room-no': data[key]['room-no'] || 'Unknown Room',
-        complaints: data[key].complaints || 'No issue described',
+        complaints: data[key].complaints || 'No issue described', // Corrected: 'complaints' instead of 'issue'
         date: data[key].date || 'N/A',
-        status: data[key].status ? String(data[key].status).toLowerCase() : 'pending',
+        status: data[key].status ? String(data[key].status).toLowerCase() : 'pending', // Default to 'pending' and ensure lowercase
         comment: data[key].comment || '',
-        'date-solved': data[key]['date-solved'] || '',
+        'date-solved': data[key]['date-solved'] || '', // Fetch 'date-solved'
       }));
       return complaintsArray.reverse();
     } else {
@@ -52,6 +71,7 @@ async function getComplaints(): Promise<Complaint[]> {
 
 export default async function LuxeDataComplaintsPage() {
   const initialComplaints = await getComplaints();
+  const startingSrNo = await getStartingSerialNo();
 
   return (
     <main className="min-h-screen w-full flex flex-col items-center p-4 sm:p-6 md:p-8 bg-background selection:bg-primary/20 font-poppins">
@@ -69,7 +89,7 @@ export default async function LuxeDataComplaintsPage() {
       </div>
 
       {/* Use the new client component to display complaints */}
-      <RealtimeComplaintsDisplay initialComplaints={initialComplaints} />
+      <RealtimeComplaintsDisplay initialComplaints={initialComplaints} startingSrNo={startingSrNo} />
     </main>
   );
 }

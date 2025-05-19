@@ -7,12 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { cn } from '@/lib/utils';
-import { User, Building, Hash, Home, MessageSquareWarning, CalendarDays, Edit3 } from 'lucide-react';
-import { useState, useEffect } from 'react'; // Import useState and useEffect
+import { User, Building, Hash, Home, MessageSquareWarning, CalendarDays, Edit3, ShieldCheck } from 'lucide-react'; // Added ShieldCheck for Serial No
+import { useState, useEffect } from 'react';
 
 interface ComplaintCardProps {
   complaint: Complaint;
   index: number;
+  displaySerialNo: number; // New prop for display serial number
 }
 
 const formatDisplayValue = (
@@ -47,15 +48,13 @@ const formatDisplayValue = (
 };
 
 
-export default function ComplaintCard({ complaint, index }: ComplaintCardProps) {
+export default function ComplaintCard({ complaint, index, displaySerialNo }: ComplaintCardProps) {
   const [isInitialRender, setIsInitialRender] = useState(true);
 
   useEffect(() => {
-    // After the first render, set isInitialRender to false.
-    // A timeout ensures this happens after the initial animation has a chance to be applied.
     const timer = setTimeout(() => {
       setIsInitialRender(false);
-    }, 0); // A timeout of 0ms defers execution until after the current call stack clears
+    }, 0); 
     return () => clearTimeout(timer);
   }, []);
 
@@ -95,9 +94,9 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
           complaint.status === 'pending' 
             ? 'bg-yellow-100 border-yellow-300 hover:shadow-2xl hover:border-yellow-400' 
             : 'bg-card border-border/30 hover:shadow-2xl hover:border-primary/30',
-          isInitialRender && "opacity-0 animate-fadeIn" // Apply animation only on initial render
+          isInitialRender && "opacity-0 animate-fadeIn"
         )}
-        style={isInitialRender ? { animationDelay: `${index * 150 + 200}ms` } : {}} // Apply delay only on initial render
+        style={isInitialRender ? { animationDelay: `${index * 150 + 200}ms` } : {}}
       >
         <CardHeader className={cn(
             "p-6 border-b relative",
@@ -111,7 +110,11 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
             Complaint Details
           </CardTitle>
           <div className="ml-[calc(28px+0.75rem)]">
-            <CardDescription className="text-xs text-muted-foreground pt-1 font-poppins">
+            <p className="text-xs text-muted-foreground pt-0.5 flex items-center font-poppins">
+              <ShieldCheck className="w-3.5 h-3.5 mr-1.5 text-muted-foreground/80" />
+              Serial No: {displaySerialNo}
+            </p>
+            <CardDescription className="text-xs text-muted-foreground pt-0.5 font-poppins">
               Report ID: {complaint.id}
             </CardDescription>
             <p className="text-xs text-muted-foreground pt-0.5 flex items-center font-poppins">
