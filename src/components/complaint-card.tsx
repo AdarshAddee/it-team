@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { cn } from '@/lib/utils';
 import { User, Building, Hash, Home, MessageSquareWarning, CalendarDays, Edit3 } from 'lucide-react';
+import { useState, useEffect } from 'react'; // Import useState and useEffect
 
 interface ComplaintCardProps {
   complaint: Complaint;
@@ -36,8 +37,6 @@ const formatDisplayValue = (
     case 'room-no':
       return value.toUpperCase();
     case 'issue':
-      // For issue and comment, ensure first letter is uppercase for display
-      // Since actual data might be lowercase from DB (especially comments)
       if (value.length > 0) {
         return value.charAt(0).toUpperCase() + value.slice(1);
       }
@@ -49,6 +48,18 @@ const formatDisplayValue = (
 
 
 export default function ComplaintCard({ complaint, index }: ComplaintCardProps) {
+  const [isInitialRender, setIsInitialRender] = useState(true);
+
+  useEffect(() => {
+    // After the first render, set isInitialRender to false.
+    // A timeout ensures this happens after the initial animation has a chance to be applied.
+    const timer = setTimeout(() => {
+      setIsInitialRender(false);
+    }, 0); // A timeout of 0ms defers execution until after the current call stack clears
+    return () => clearTimeout(timer);
+  }, []);
+
+
   let displayDate = complaint.date;
   if (complaint.date && !isNaN(new Date(complaint.date).getTime())) {
     if (complaint.date.length === 4 && /^\d{4}$/.test(complaint.date)) {
@@ -71,7 +82,6 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
     displayDate = 'N/A';
   }
 
-  // Status is now expected to be lowercase from data fetching ('pending' or 'completed')
   const statusVariant = complaint.status === 'completed' ? 'default' : 'secondary';
   const statusText = complaint.status === 'completed' ? 'Completed' : 'Pending';
 
@@ -80,13 +90,14 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
     <Link href={`/complaint/${complaint.id}`} passHref>
       <Card
         className={cn(
-          "w-full opacity-0 animate-fadeIn mb-8 shadow-xl rounded-lg overflow-hidden cursor-pointer group",
+          "w-full mb-8 shadow-xl rounded-lg overflow-hidden cursor-pointer group",
           "transition-all duration-300 ease-out",
           complaint.status === 'pending' 
             ? 'bg-yellow-100 border-yellow-300 hover:shadow-2xl hover:border-yellow-400' 
-            : 'bg-card border-border/30 hover:shadow-2xl hover:border-primary/30'
+            : 'bg-card border-border/30 hover:shadow-2xl hover:border-primary/30',
+          isInitialRender && "opacity-0 animate-fadeIn" // Apply animation only on initial render
         )}
-        style={{ animationDelay: `${index * 150 + 200}ms` }}
+        style={isInitialRender ? { animationDelay: `${index * 150 + 200}ms` } : {}} // Apply delay only on initial render
       >
         <CardHeader className={cn(
             "p-6 border-b relative",
@@ -114,7 +125,7 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
                     variant={statusVariant} 
                     className={cn(
                         "text-xs font-poppins",
-                        complaint.status === 'pending' && 'bg-amber-500 text-white border-amber-600 hover:bg-amber-600' // More prominent pending badge on yellow
+                        complaint.status === 'pending' && 'bg-amber-500 text-white border-amber-600 hover:bg-amber-600'
                     )}
                 >
                     {statusText}
@@ -202,4 +213,3 @@ export default function ComplaintCard({ complaint, index }: ComplaintCardProps) 
     </Link>
   );
 }
-
