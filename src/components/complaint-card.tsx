@@ -7,13 +7,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { cn } from '@/lib/utils';
-import { User, Building, Hash, Home, MessageSquareWarning, CalendarDays, Edit3, ShieldCheck } from 'lucide-react'; // Added ShieldCheck for Serial No
+import { User, Building, Hash, Home, MessageSquareWarning, CalendarDays, Edit3 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 interface ComplaintCardProps {
   complaint: Complaint;
   index: number;
-  displaySerialNo: number; // New prop for display serial number
 }
 
 const formatDisplayValue = (
@@ -48,13 +47,13 @@ const formatDisplayValue = (
 };
 
 
-export default function ComplaintCard({ complaint, index, displaySerialNo }: ComplaintCardProps) {
+export default function ComplaintCard({ complaint, index }: ComplaintCardProps) {
   const [isInitialRender, setIsInitialRender] = useState(true);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsInitialRender(false);
-    }, 0); 
+    }, 0);
     return () => clearTimeout(timer);
   }, []);
 
@@ -62,11 +61,11 @@ export default function ComplaintCard({ complaint, index, displaySerialNo }: Com
   let displayDate = complaint.date;
   if (complaint.date && !isNaN(new Date(complaint.date).getTime())) {
     if (complaint.date.length === 4 && /^\d{4}$/.test(complaint.date)) {
-        displayDate = complaint.date; 
+        displayDate = complaint.date;
     } else {
         try {
             const dateObj = new Date(complaint.date);
-            if (!isNaN(dateObj.valueOf())) { 
+            if (!isNaN(dateObj.valueOf())) {
                  displayDate = dateObj.toLocaleDateString('en-GB', {
                     day: '2-digit',
                     month: '2-digit',
@@ -91,8 +90,8 @@ export default function ComplaintCard({ complaint, index, displaySerialNo }: Com
         className={cn(
           "w-full mb-8 shadow-xl rounded-lg overflow-hidden cursor-pointer group",
           "transition-all duration-300 ease-out",
-          complaint.status === 'pending' 
-            ? 'bg-yellow-100 border-yellow-300 hover:shadow-2xl hover:border-yellow-400' 
+          complaint.status === 'pending'
+            ? 'bg-yellow-100 border-yellow-300 hover:shadow-2xl hover:border-yellow-400'
             : 'bg-card border-border/30 hover:shadow-2xl hover:border-primary/30',
           isInitialRender && "opacity-0 animate-fadeIn"
         )}
@@ -100,7 +99,7 @@ export default function ComplaintCard({ complaint, index, displaySerialNo }: Com
       >
         <CardHeader className={cn(
             "p-6 border-b relative",
-            complaint.status === 'pending' 
+            complaint.status === 'pending'
                 ? 'bg-gradient-to-br from-yellow-100 to-yellow-50/50 border-yellow-300/70'
                 : 'bg-gradient-to-br from-card to-muted/10 border-border/30'
             )}
@@ -110,22 +109,18 @@ export default function ComplaintCard({ complaint, index, displaySerialNo }: Com
             Complaint Details
           </CardTitle>
           <div className="ml-[calc(28px+0.75rem)]">
-            <p className="text-xs text-muted-foreground pt-0.5 flex items-center font-poppins">
-              <ShieldCheck className="w-3.5 h-3.5 mr-1.5 text-muted-foreground/80" />
-              Serial No: {displaySerialNo}
-            </p>
             <CardDescription className="text-xs text-muted-foreground pt-0.5 font-poppins">
               Report ID: {complaint.id}
             </CardDescription>
             <p className="text-xs text-muted-foreground pt-0.5 flex items-center font-poppins">
-              <CalendarDays className="w-3 h-3 mr-1.5 text-muted-foreground/80" /> 
+              <CalendarDays className="w-3 h-3 mr-1.5 text-muted-foreground/80" />
               Date: {displayDate}
             </p>
           </div>
           <div className="absolute top-4 right-4 flex items-center space-x-2">
              {complaint.status && (
-                <Badge 
-                    variant={statusVariant} 
+                <Badge
+                    variant={statusVariant}
                     className={cn(
                         "text-xs font-poppins",
                         complaint.status === 'pending' && 'bg-amber-500 text-white border-amber-600 hover:bg-amber-600'
@@ -174,7 +169,7 @@ export default function ComplaintCard({ complaint, index, displaySerialNo }: Com
                 </p>
               </div>
             </div>
-            
+
             <div className="space-y-1 flex items-start">
               <Home className="w-4 h-4 text-primary mr-2.5 mt-0.5 shrink-0" />
               <div>
@@ -187,13 +182,13 @@ export default function ComplaintCard({ complaint, index, displaySerialNo }: Com
               </div>
             </div>
           </div>
-          
+
           <Separator className={cn(
               "my-4",
               complaint.status === 'pending' ? 'bg-yellow-300/80' : 'bg-border/50'
-            )} 
+            )}
           />
-          
+
           <div>
             <h3 className="text-lg font-semibold text-accent mb-2 tracking-tight flex items-center font-poppins">
                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 text-accent"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.51a2 2 0 0 1 1-1.72l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
@@ -201,7 +196,7 @@ export default function ComplaintCard({ complaint, index, displaySerialNo }: Com
             </h3>
             <div className={cn(
                 "p-4 rounded-md shadow-inner",
-                complaint.status === 'pending' 
+                complaint.status === 'pending'
                     ? 'bg-yellow-50/70 border border-yellow-200/90'
                     : 'bg-muted/20 border border-border/20'
                 )}

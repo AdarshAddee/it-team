@@ -18,25 +18,6 @@ export interface Complaint {
   'date-solved'?: string; // Changed from date_resolved
 }
 
-// Function to fetch the starting serial number
-async function getStartingSerialNo(): Promise<number> {
-  const counterRef = ref(database, 'counters/gnaComplaintsSrNo');
-  try {
-    const snapshot = await get(counterRef);
-    if (snapshot.exists()) {
-      const val = snapshot.val();
-      const srNo = parseInt(val);
-      return isNaN(srNo) ? 1 : srNo;
-    } else {
-      console.log("gnaComplaintsSrNo not found in counters, defaulting to 1.");
-      return 1;
-    }
-  } catch (error) {
-    console.error("Error fetching gnaComplaintsSrNo from Firebase:", error);
-    return 1; // Default to 1 in case of error
-  }
-}
-
 // This function will still be used for the initial server-side fetch
 async function getComplaints(): Promise<Complaint[]> {
   const complaintsRef = ref(database, 'gna-complaints');
@@ -71,7 +52,6 @@ async function getComplaints(): Promise<Complaint[]> {
 
 export default async function LuxeDataComplaintsPage() {
   const initialComplaints = await getComplaints();
-  const startingSrNo = await getStartingSerialNo();
 
   return (
     <main className="min-h-screen w-full flex flex-col items-center p-4 sm:p-6 md:p-8 bg-background selection:bg-primary/20 font-poppins">
@@ -89,7 +69,7 @@ export default async function LuxeDataComplaintsPage() {
       </div>
 
       {/* Use the new client component to display complaints */}
-      <RealtimeComplaintsDisplay initialComplaints={initialComplaints} startingSrNo={startingSrNo} />
+      <RealtimeComplaintsDisplay initialComplaints={initialComplaints} />
     </main>
   );
 }

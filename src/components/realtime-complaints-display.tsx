@@ -9,10 +9,9 @@ import ComplaintCard from '@/components/complaint-card';
 
 interface RealtimeComplaintsDisplayProps {
   initialComplaints: Complaint[];
-  startingSrNo: number;
 }
 
-export default function RealtimeComplaintsDisplay({ initialComplaints, startingSrNo }: RealtimeComplaintsDisplayProps) {
+export default function RealtimeComplaintsDisplay({ initialComplaints }: RealtimeComplaintsDisplayProps) {
   const [complaints, setComplaints] = useState<Complaint[]>(initialComplaints);
 
   useEffect(() => {
@@ -60,11 +59,10 @@ export default function RealtimeComplaintsDisplay({ initialComplaints, startingS
       ) : (
         <div className="w-full max-w-md sm:max-w-lg md:max-w-2xl">
           {complaints.map((complaint, index) => (
-            <ComplaintCard 
-              key={complaint.id} 
-              complaint={complaint} 
-              index={index} 
-              displaySerialNo={startingSrNo + index}
+            <ComplaintCard
+              key={complaint.id}
+              complaint={complaint}
+              index={index}
             />
           ))}
         </div>
